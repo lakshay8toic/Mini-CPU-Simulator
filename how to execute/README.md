@@ -7,6 +7,8 @@ This guide covers:
 - **Part C**: running it and explaining the output
 - **Part D**: viva questions
 
+For a **line-by-line explanation of the code** (how we made it, and what each line does), see **[CODE_EXPLANATION.md](CODE_EXPLANATION.md)**.
+
 **PDF copy:** [Download HOW_TO_EXECUTE.pdf](https://github.com/lakshay8toic/Mini-CPU-Simulator/raw/main/how%20to%20execute/HOW_TO_EXECUTE.pdf)
 (GitHub's preview may show *"Unable to render code block"* for PDFs. Use this link, or the download button ⤓ on the file page.)
 
@@ -14,18 +16,23 @@ This guide covers:
 
 ## Part A : Running the project in emu8086
 
-### Step 1 : Download
-1. Open **https://github.com/lakshay8toic/Mini-CPU-Simulator**
-2. Click the green **Code** button, then **Download ZIP**.
-3. Right-click the ZIP and choose **Extract All**.
-4. The program is in `src\MINICPU.ASM`.
+### Step 1 : Get the file onto the laptop that has emu8086
+You only need **one file**: `MINICPU.ASM`. Use any of these ways:
+
+- **Download from GitHub (easiest):** on that laptop, open **https://github.com/lakshay8toic/Mini-CPU-Simulator**, click **src**, then **MINICPU.ASM**, then the **download button ⤓**. The file goes to the Downloads folder.
+- **Whole project as a ZIP:** click the green **Code** button, then **Download ZIP**, then **Extract All**. The file is in `src\MINICPU.ASM`.
+- **Pen drive or WhatsApp:** copy `MINICPU.ASM` from your phone or laptop to the Desktop.
+
+**Do this at least one day before the demo**, and do one full run on that laptop (Steps 2 and 3).
 
 ### Step 2 : Open the code
+
 1. Start **emu8086**. Close the welcome window if one appears.
-2. Click **Open** and select `MINICPU.ASM`.
+2. Click **Open** and select `MINICPU.ASM` (from Downloads, Desktop, or the extracted `src` folder).
 3. The full code appears in the editor. **This is where you explain the code (Part B).**
 
 ### Step 3 : Compile and run
+
 1. Click **Emulate** on the toolbar (or press **F5**).
 2. If emu8086 asks to save `MINICPU.com`, click **Save**.
 3. In the emulator window, drag the **step delay** slider all the way left (**0 ms**) so the program runs fast.

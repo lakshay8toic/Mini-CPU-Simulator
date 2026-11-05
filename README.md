@@ -65,7 +65,10 @@ To run a different calculation, change the numbers in the `ram` line of `src/MIN
 
 ## How to run
 
-See the **[how to execute](how%20to%20execute/)** folder for step-by-step instructions on running the project in emu8086 and demonstrating it.
+See the **[how to execute](how%20to%20execute/)** folder:
+
+- **README / HOW_TO_EXECUTE.pdf** : running the project in emu8086 and demonstrating it
+- **CODE_EXPLANATION / CODE_EXPLANATION.pdf** : line-by-line explanation of the code
 
 In short:
 1. Open `src/MINICPU.ASM` in emu8086.
@@ -79,7 +82,7 @@ In short:
 ```
 Mini-CPU-Simulator/
 ├── src/MINICPU.ASM      the program (open this in emu8086)
-├── how to execute/      how to run and demonstrate the project
+├── how to execute/      how to run, demonstrate and explain the code (with PDFs)
 ├── screenshots/         output screenshots
 └── tests/               optional automated tests (Python)
 ```
