@@ -6,7 +6,8 @@ This guide covers:
 - **Part B**: demonstrating it step by step (about 5 minutes)
 - **Part C**: likely viva questions
 
-A PDF copy of this guide is in the same folder: `HOW_TO_EXECUTE.pdf`.
+**PDF copy:** [Download HOW_TO_EXECUTE.pdf](https://github.com/lakshay8toic/Mini-CPU-Simulator/raw/main/how%20to%20execute/HOW_TO_EXECUTE.pdf)
+(GitHub's preview may show *"Unable to render code block"* for PDFs. Use this link, or the download button ⤓ on the file page.)
 
 ---
 
