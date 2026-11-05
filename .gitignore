@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+*.com
+*.COM
+*.exe
+*.EXE
+*.bin
+*.~asm
+*.symbol
+*.list
+*.debug
+*_.binf
