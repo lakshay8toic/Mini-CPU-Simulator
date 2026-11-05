@@ -5,7 +5,7 @@ Tiny DOS .COM test harness for MINICPU.ASM.
    with `cpu 8086`, so any instruction that a real 8086 / emu8086 cannot run
    is rejected.
 2. Runs the .COM file in the Unicorn CPU emulator with a fake 80x25 text
-   screen, INT 21h (02h, 09h, 4Ch), INT 10h (00h) and INT 16h (00h) keyboard.
+   screen and keyboard (INT 21h functions 02h, 07h, 09h, 4Ch).
 
 Usage:  from dosemu import build, run
 """
@@ -24,18 +24,34 @@ SRC = os.path.join(HERE, "..", "src", "MINICPU.ASM")
 
 
 def to_nasm(text):
+    """emu8086 / MASM style -> NASM, so the source can be assembled with
+    `cpu 8086` for testing.  Handles: bare variable names (mov al, cpu_pc),
+    arrays (ram[bx]), 'offset', 'byte ptr' and 'dup'."""
+    names = re.findall(r"^(\w+)\s+db\b", text, flags=re.M | re.I)
     out = ["cpu 8086"]
+    in_code = False
     for line in text.splitlines():
-        line = re.sub(r"\bbyte ptr\b", "byte", line, flags=re.I)
-        line = re.sub(r"\bword ptr\b", "word", line, flags=re.I)
-        line = re.sub(r"\boffset\s+", "", line, flags=re.I)
-        line = re.sub(r"^(\w+)\s+db\s+(\d+)\s+dup\((\w+)\)",
-                      r"\1: times \2 db \3", line, flags=re.I)
-        out.append(line)
+        code, sep, comment = line.partition(";")
+        if re.match(r"^\s*start\s*:", code):
+            in_code = True
+        code = re.sub(r"\bbyte ptr\b", "byte", code, flags=re.I)
+        code = re.sub(r"\bword ptr\b", "word", code, flags=re.I)
+        code = re.sub(r"^(\w+)\s+db\s+(\d+)\s+dup\((\w+)\)",
+                      r"\1: times \2 db \3", code, flags=re.I)
+        if in_code and "'" not in code:
+            for n in names:
+                code = re.sub(r"\b%s\[([^\]]+)\]" % n, r"[%s+\1]" % n, code)
+                code = re.sub(r"(?<!offset )(?<![\[\w])\b%s\b(?![\w\]+])" % n,
+                              "[%s]" % n, code)
+                code = re.sub(r"(?<!offset )(?<![\[\w])\b%s(\+\w+)" % n,
+                              r"[%s\1]" % n, code)
+        code = re.sub(r"\boffset\s+", "", code, flags=re.I)
+        out.append(code + sep + comment)
     return "\n".join(out) + "\n"
 
 
-def build(src=SRC):
+def build(src=None):
+    src = src or SRC
     tmp = tempfile.mkdtemp()
     asm = os.path.join(tmp, "minicpu.asm")
     com = os.path.join(tmp, "minicpu.com")
@@ -107,6 +123,13 @@ def run(keys, max_insn=50_000_000):
                         break
                     scr.put(b)
                     p += 1
+            elif ah == 0x07:
+                screens.append(scr.text())
+                if not keys:
+                    uc.emu_stop()
+                    return
+                k = keys.pop(0)
+                uc.reg_write(UC_X86_REG_AX, (ax & 0xFF00) | ord(k))
             elif ah == 0x4C:
                 state["exited"] = True
                 uc.emu_stop()
