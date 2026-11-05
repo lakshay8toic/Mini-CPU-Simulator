@@ -102,12 +102,12 @@ newline    db 13, 10, '$'
 ;   MAIN PROGRAM
 ;=================================================================
 start:
-    mov dx, offset msg_title
+    lea dx, msg_title
     call print_str
     call show_memory            ; show the program in memory
 
 cpu_cycle:
-    mov dx, offset msg_line
+    lea dx, msg_line
     call print_str
 
     call wait_key
@@ -124,15 +124,15 @@ cpu_cycle:
     jne cpu_cycle               ; no  -> run the next instruction
 
     ; ---------- CPU has stopped : show the result ----------
-    mov dx, offset msg_done
+    lea dx, msg_done
     call print_str
     mov al, ram[0Ch]            ; result is in memory address 0C
     call print_hex
-    mov dx, offset msg_hex
+    lea dx, msg_hex
     call print_str
     call show_memory
 
-    mov dx, offset msg_exit
+    lea dx, msg_exit
     call print_str
     call wait_key
 
@@ -158,7 +158,7 @@ fetch:
     and al, 0Fh                 ; keep PC between 00 and 0F
     mov cpu_pc, al              ; PC <- PC + 1
 
-    mov dx, offset msg_fetch
+    lea dx, msg_fetch
     call print_str
     call show_regs
     ret
@@ -176,15 +176,15 @@ decode:
     and al, 0Fh                 ; keep only the low 4 bits
     mov op_addr, al
 
-    mov dx, offset msg_dec1
+    lea dx, msg_dec1
     call print_str
     mov al, op_code
     call print_hex
-    mov dx, offset msg_dec2
+    lea dx, msg_dec2
     call print_str
     mov al, op_addr
     call print_hex
-    mov dx, offset newline
+    lea dx, newline
     call print_str
     ret
 
@@ -192,7 +192,7 @@ decode:
 ;   EXECUTE :  do the work of the instruction
 ;=================================================================
 execute:
-    mov dx, offset msg_exec
+    lea dx, msg_exec
     call print_str
 
     mov bl, op_addr
@@ -216,7 +216,7 @@ do_load:                        ; ACC <- M[address]
     mov al, ram[bx]
     mov cpu_mdr, al
     mov cpu_acc, al
-    mov dx, offset msg_load
+    lea dx, msg_load
     jmp exec_end
 
 do_add:                         ; ACC <- ACC + M[address]
@@ -224,7 +224,7 @@ do_add:                         ; ACC <- ACC + M[address]
     mov al, ram[bx]
     mov cpu_mdr, al
     add cpu_acc, al
-    mov dx, offset msg_add
+    lea dx, msg_add
     jmp exec_end
 
 do_sub:                         ; ACC <- ACC - M[address]
@@ -232,7 +232,7 @@ do_sub:                         ; ACC <- ACC - M[address]
     mov al, ram[bx]
     mov cpu_mdr, al
     sub cpu_acc, al
-    mov dx, offset msg_sub
+    lea dx, msg_sub
     jmp exec_end
 
 do_store:                       ; M[address] <- ACC
@@ -240,18 +240,18 @@ do_store:                       ; M[address] <- ACC
     mov al, cpu_acc
     mov cpu_mdr, al
     mov ram[bx], al
-    mov dx, offset msg_store
+    lea dx, msg_store
     jmp exec_end
 
 do_jmp:                         ; PC <- address
     mov cpu_pc, bl
-    mov dx, offset msg_jmp
+    lea dx, msg_jmp
     jmp exec_end
 
 do_halt:                        ; stop the CPU
     mov al, 1
     mov halted, al
-    mov dx, offset msg_halt
+    lea dx, msg_halt
 
 exec_end:
     call print_str              ; print what was executed
@@ -262,32 +262,32 @@ exec_end:
 ;   SHOW_REGS :  print PC, MAR, MDR, IR and ACC
 ;=================================================================
 show_regs:
-    mov dx, offset msg_pc
+    lea dx, msg_pc
     call print_str
     mov al, cpu_pc
     call print_hex
 
-    mov dx, offset msg_mar
+    lea dx, msg_mar
     call print_str
     mov al, cpu_mar
     call print_hex
 
-    mov dx, offset msg_mdr
+    lea dx, msg_mdr
     call print_str
     mov al, cpu_mdr
     call print_hex
 
-    mov dx, offset msg_ir
+    lea dx, msg_ir
     call print_str
     mov al, cpu_ir
     call print_hex
 
-    mov dx, offset msg_acc
+    lea dx, msg_acc
     call print_str
     mov al, cpu_acc
     call print_hex
 
-    mov dx, offset newline
+    lea dx, newline
     call print_str
     ret
 
@@ -295,9 +295,9 @@ show_regs:
 ;   SHOW_MEMORY :  print all 16 bytes of memory
 ;=================================================================
 show_memory:
-    mov dx, offset msg_addr
+    lea dx, msg_addr
     call print_str
-    mov dx, offset msg_mem
+    lea dx, msg_mem
     call print_str
 
     mov bx, 0
@@ -311,7 +311,7 @@ mem_loop:
     cmp bx, 16
     jb mem_loop
 
-    mov dx, offset newline
+    lea dx, newline
     call print_str
     ret
 
