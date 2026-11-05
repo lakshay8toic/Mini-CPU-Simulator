@@ -3,8 +3,9 @@
 This guide covers:
 
 - **Part A**: running the project in emu8086
-- **Part B**: demonstrating it step by step (about 5 minutes)
-- **Part C**: likely viva questions
+- **Part B**: explaining the code to sir inside emu8086
+- **Part C**: running it and explaining the output
+- **Part D**: viva questions
 
 **PDF copy:** [Download HOW_TO_EXECUTE.pdf](https://github.com/lakshay8toic/Mini-CPU-Simulator/raw/main/how%20to%20execute/HOW_TO_EXECUTE.pdf)
 (GitHub's preview may show *"Unable to render code block"* for PDFs. Use this link, or the download button ⤓ on the file page.)
@@ -13,169 +14,146 @@ This guide covers:
 
 ## Part A : Running the project in emu8086
 
-### What you need
-- A Windows PC with **emu8086** installed
-- The file **`src/MINICPU.ASM`** from this repository
-
-### Step 1 : Download the repository
+### Step 1 : Download
 1. Open **https://github.com/lakshay8toic/Mini-CPU-Simulator**
 2. Click the green **Code** button, then **Download ZIP**.
-3. Right-click the downloaded ZIP and choose **Extract All**.
-4. The program is in `Mini-CPU-Simulator-main\src\MINICPU.ASM`.
+3. Right-click the ZIP and choose **Extract All**.
+4. The program is in `src\MINICPU.ASM`.
 
-### Step 2 : Open the file in emu8086
-1. Start **emu8086**. Close the welcome or samples window if one appears.
-2. Click **Open** (or choose **File > Open**) and select `MINICPU.ASM`.
-3. The full source code appears in the editor.
+### Step 2 : Open the code
+1. Start **emu8086**. Close the welcome window if one appears.
+2. Click **Open** and select `MINICPU.ASM`.
+3. The full code appears in the editor. **This is where you explain the code (Part B).**
 
-### Step 3 : Compile and load
+### Step 3 : Compile and run
 1. Click **Emulate** on the toolbar (or press **F5**).
-2. If emu8086 asks where to save `MINICPU.com`, keep the default location and click **Save**.
-3. Two windows open: the **emulator** window (registers and memory) and the **original source code** window.
-
-### Step 4 : Remove the speed delay (important)
-At the bottom of the emulator window, drag the **step delay** slider all the way to the left (**0 ms**).
-If you skip this, the screen redraws slowly, one character at a time.
-
-### Step 5 : Run
-1. Click **Run** in the emulator window.
-2. The black **emulator screen** window opens and shows the main menu.
-   If it doesn't appear, click the **screen** button in the emulator window.
-3. **Click once inside the black screen window** so it receives your key presses.
-
-### Step 6 : Check that it works
-Press `1`, then any key, then `R`. You should see:
-
-```
- OUTPUT : 0C   (last = 12 decimal)
- *** HALT : program finished.  Press any key for the menu ***
-```
-
-If you see this, the setup is correct. Press any key to go back to the menu.
-
-### Keys used in the simulator
-
-| Key | Action |
-|---|---|
-| `1` `2` `3` | Load demo program 1, 2 or 3 |
-| `4` | Enter your own program in hex |
-| `5` | Show the instruction set |
-| `6` / `Esc` | Exit |
-| `Enter` / `Space` | Run the **next stage** (one clock cycle) |
-| `I` | Run until the current **instruction** completes |
-| `R` | **Run** the whole program up to HALT |
-| `Q` | Return to the menu |
-
-### Troubleshooting
+2. If emu8086 asks to save `MINICPU.com`, click **Save**.
+3. In the emulator window, drag the **step delay** slider all the way left (**0 ms**) so the program runs fast.
+4. Click **Run**.
+5. The black **emulator screen** window opens. Click once inside it, then press any key for each step.
 
 | Problem | Fix |
 |---|---|
 | Keys do nothing | Click inside the black emulator screen window first |
-| Screen draws very slowly | Set the step delay slider to 0 ms |
 | The screen window is missing | Click the **screen** button in the emulator window |
-| The program stops in the middle of the demo | Click **Run** again. Don't use **Single step**, which runs one 8086 instruction at a time |
-| You want to start over | Click **Reload** in the emulator window, then **Run** |
+| You want to run it again | Click **Reload**, then **Run** |
 
 ---
 
-## Part B : Demonstration for the faculty (about 5 minutes)
+## Part B : Explaining the code (in the emu8086 editor)
 
-### 1. Introduction (15 s)
-> "I built a 5-stage processor simulator in 8086 assembly. It runs the Fetch, Decode, ALU, Memory and Write-back model from Unit II, one clock cycle per key press, and shows the RTL action, the control signals and every register at each stage."
+The code has 5 parts. Scroll through them in this order.
 
-### 2. Instruction set (30 s)
-Press **`5`**. Explain:
+### 1. The header comment (top of the file)
+> "This program simulates a small CPU with registers PC, MAR, MDR, IR and ACC. Each instruction is 1 byte: the high 4 bits are the opcode and the low 4 bits are the address. It has 6 instructions: LOAD, ADD, SUB, STORE, JMP and HALT."
 
-- Each instruction is **2 bytes**: opcode, Rdst and Rsrc in byte 0, and Rsrc2, an immediate value or an address in byte 1.
-- There are **4 registers**, and **R0 is always 0**.
-- There are **11 instructions** using **4 addressing modes**: register, immediate, absolute and index.
+### 2. The memory : `ram` (around line 50)
+```asm
+ram     db 1Dh, 2Eh, 3Fh, 4Ch, 56h, 2Eh, 00h, 00h
+        db 00h, 00h, 00h, 00h, 00h, 09h, 05h, 03h
+```
+> "This is the memory of the small CPU, 16 bytes. The first bytes are the program, and the last three bytes are the data: 9, 5 and 3.
+> For example, `1D` means opcode 1 (LOAD) and address D, so it loads the value at address 0D into ACC."
 
-Press any key to return to the menu.
+### 3. The registers : `cpu_pc`, `cpu_mar`, `cpu_mdr`, `cpu_ir`, `cpu_acc` (around line 56)
+> "Each register of the small CPU is one byte variable in the 8086 program."
 
-### 3. Demo 1 : Load, Add, Store, stage by stage (2 min)
-Press **`1`**. The listing shows the machine code next to the assembly. Press any key to start.
+### 4. The main loop : `cpu_cycle` (around line 109)
+```asm
+cpu_cycle:
+    call wait_key
+    call fetch          ; step 1
+    call wait_key
+    call decode         ; step 2
+    call wait_key
+    call execute        ; step 3
+    ...
+    jne cpu_cycle       ; repeat until HALT
+```
+> "This is the instruction cycle. It waits for a key, then runs fetch, decode and execute, and repeats until the CPU executes HALT."
 
-Press **Enter** five times for the first instruction, `LOAD R1, 30h(R0)`:
+### 5. The three steps
 
-| Press | Stage | What to say |
-|---|---|---|
-| Enter | **1 FETCH** | "MA gets the PC, IR gets the instruction `64 30`, and the PC goes from 00 to 02." |
-| Enter | **2 DECODE** | "The opcode is LOAD, and RA and RB are read from the register file." |
-| Enter | **3 ALU** | "RZ = 30h. This is the effective address, X + [R0]." |
-| Enter | **4 MEMORY** | "MA = 30h. The value 07 is read from memory into MD, then copied to RY." |
-| Enter | **5 WRITE-BACK** | "R1 = 07. One instruction took 5 clock cycles." |
+**`fetch` (around line 145)**
+> "MAR gets the PC, the byte at that address is read into MDR, MDR is copied into IR, and PC is increased by 1."
 
-Then press **`I`** to run one whole instruction at a time:
+**`decode` (around line 169)**
+```asm
+shr al, cl      ; shift right 4 times -> opcode
+and al, 0Fh     ; keep low 4 bits    -> address
+```
+> "Shifting IR right by 4 bits gives the opcode. ANDing IR with 0F keeps the low 4 bits, which is the address."
 
-| Press | Instruction | What to point at |
-|---|---|---|
-| I | `LOAD R2, 31h(R0)` | R2 = 05 |
-| I | `ADD R3, R1, R2` | R3 = 0C (7 + 5 = 12) |
-| I | `STORE R3, 32h(R0)` | **`*0C`** appears at address 32h, which is the memory write |
-| I | `OUT R3` | OUTPUT : 0C |
-| I | `HALT` | Clock = **27** (5 instructions × 5 cycles + 2 cycles for HALT) |
+**`execute` (around line 194)**
+> "We compare the opcode with 1, 2, 3, 4 and 5 and jump to the matching code. For example, `do_add` reads the memory value and adds it to ACC with the 8086's own ADD instruction."
 
-### 4. Demo 2 : Loop with a branch (45 s)
-Press any key, then **`2`**, any key, and **`R`**.
-The output is `05 04 03 02 01 00`.
-> "BEQ decides the branch in the ALU stage. `55 FF` is `ADDI R1, R1, #-1`, with -1 stored in two's complement."
-
-### 5. Demo 3 : Array sum with index addressing (30 s)
-Press any key, then **`3`**, any key, and **`R`**.
-The output is `12` hex = **18**, and `*12` appears at address 3Fh.
-> "`LOAD R3, 2Fh(R2)` is index mode, the same as `Load R5, X(R7)` in the slides. The effective address is 2Fh + i."
-
-### 6. Optional : your own program (30 s)
-Press **`4`** and type `5403` `5804` `1D02` `A300` `.`
-This program computes 3 + 4 and outputs `07`. It shows that the simulator runs any machine code you type in.
-
-### 7. Close with the GitHub repository (15 s)
-Show the README, `docs/STAGE_TABLES.md` and the `tests` folder, which has 30 automated checks.
+The helper routines at the bottom (`print_str`, `print_hex`, `wait_key`) only print text and read keys, using **INT 21h**.
 
 ---
 
-## Part C : Viva questions and answers
+## Part C : Running it and explaining the output
 
-**Q1. Why does every instruction take 5 stages?**
-Every instruction uses the same five-stage hardware, and some stages do no work for some instructions. Keeping one organization makes the control unit simple, and it's also what makes pipelining possible (Unit III).
+After clicking **Run**, the screen shows the memory:
+```
+Address : 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F
+Memory  : 1D 2E 3F 4C 56 2E 00 00 00 00 00 00 00 09 05 03
+```
 
-**Q2. What are RA, RB, RZ, RM and RY?**
-They are inter-stage registers.
+Press a key **three times for each instruction** (Fetch, Decode, Execute). For the first instruction:
 
-- RA and RB hold the ALU inputs.
-- RZ holds the ALU result.
-- RM holds the data to be stored.
-- RY holds the value to be written back.
+| Key | Screen shows | What to say |
+|---|---|---|
+| 1st | `[FETCH] ... PC=01 MAR=00 MDR=1D IR=1D` | "The instruction 1D is fetched from address 00, and PC becomes 01." |
+| 2nd | `[DECODE] opcode = 01, address = 0D` | "Opcode 1 is LOAD, and the address is 0D." |
+| 3rd | `[EXECUTE] LOAD ... ACC=09` | "The value 9 from address 0D is loaded into ACC." |
 
-They work like the buffers between pipeline stages.
+Keep pressing keys and point out these moments:
 
-**Q3. Is the control hardwired or microprogrammed?**
-Hardwired. The control signals come directly from the opcode and the stage number, which is the step counter.
+| Instruction | What to point at |
+|---|---|
+| ADD 0E | ACC = **0E** (9 + 5 = 14) |
+| SUB 0F | ACC = **0B** (14 − 3 = 11) |
+| STORE 0C | MAR = 0C, MDR = 0B. The result is written to memory |
+| JMP 06 | PC = **06**, so address 05 is skipped |
+| HALT | The CPU stops |
 
-**Q4. Why is R0 hard-wired to 0?**
-So that `X(R0)` gives absolute addressing without needing a separate addressing mode.
+The final screen shows:
+```
+========== CPU HALTED ==========
+Result at address 0C = 0B (hex)
+Memory  : 1D 2E 3F 4C 56 2E 00 00 00 00 00 00 0B 09 05 03
+```
+> "0B in hex is 11, so 9 + 5 − 3 = 11, and you can see it saved at address 0C in memory."
 
-**Q5. What is the CPI?**
-5 for every instruction, and 2 for HALT, which stops in the decode stage.
+### Optional : change the numbers live
+If sir asks you to try other numbers, edit the last three values in the `ram` line. For example, change `09h, 05h, 03h` to `14h, 06h, 02h` (20 + 6 − 2). Click **Emulate** and **Run** again. The result is **18** hex = 24.
 
-**Q6. How is the 8086 used?**
+---
 
-- The simulated CPU's memory and registers are stored in the 8086 data segment.
-- Instruction fields are decoded with `SHR` and `AND`.
-- Arithmetic uses the 8086's own `ADD`, `SUB`, `AND` and `OR`, and the 8086 Z and C flags are copied into the simulated flags.
-- The screen uses **INT 21h** (functions 02h and 09h) and **INT 10h**, and the keyboard uses **INT 16h**.
+## Part D : Viva questions
 
-**Q7. How do you encode `LOAD R1, 30h(R0)`?**
+**Q1. What does this project do?**
+It simulates a small CPU in 8086 assembly and shows the fetch, decode and execute steps of every instruction, including how PC, MAR, MDR, IR and ACC change.
 
-- Opcode 6 = `0110`, Rd = R1 = `01`, Rs = R0 = `00`.
-- Byte 0 = `0110 0100` = **64h**.
-- Byte 1 = X = **30h**.
-- The machine code is **`64 30`**.
+**Q2. What happens in the fetch step?**
+MAR ← PC, MDR ← M[MAR], IR ← MDR, PC ← PC + 1.
 
-**Q8. How does this relate to RISC?**
-It follows RISC principles:
+**Q3. How is the instruction decoded?**
+The instruction is 1 byte. Shifting it right 4 bits (`SHR`) gives the opcode. ANDing it with `0Fh` gives the address.
 
-- every instruction has a fixed length
-- only LOAD and STORE access memory (a load/store architecture)
-- the ALU works only on registers
-- every instruction goes through the same stages
+**Q4. What is the job of MAR and MDR?**
+MAR holds the memory address being accessed. MDR holds the data read from, or written to, that address.
+
+**Q5. Why does PC increase by 1?**
+Each instruction is 1 byte, so the next instruction is at the next address.
+
+**Q6. How does JMP work?**
+JMP puts the address part of the instruction into PC, so the next fetch happens from that address. In this program it skips address 05.
+
+**Q7. What is the accumulator?**
+ACC is the register that holds the result of LOAD, ADD and SUB. STORE copies it into memory.
+
+**Q8. Which 8086 instructions and interrupts did you use?**
+
+- `MOV`, `ADD`, `SUB`, `CMP`, `JE`, `JMP`, `SHR`, `AND`, `CALL` and `RET`
+- **INT 21h** function 09h to print a message, 02h to print a character, 07h to read a key, and 4Ch to exit
